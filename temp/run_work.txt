@@ -1,4 +1,5 @@
-Миграции:
+Миграции на рабочем компе:
+
 migrate create -ext sql -dir /c/KKO11/Golang/Gavrilin/cloud_market/db/dumps -seq tables
 
 migrate -path /c/KKO11/Golang/Gavrilin/cloud_market/db/dumps -database "postgres://localhost:5432/cloud_market?sslmode=disable&user=postgres&password=password" up

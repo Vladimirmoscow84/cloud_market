@@ -15,6 +15,13 @@ func Run() {
 		fmt.Println("postgres DB initialization error:", err)
 		return
 	}
+
+	// 7. Создание экземпляра структуры консьюмер
+	consumer := newConsumer(strg)
+
+	//8 запускаем в отдельной горутине  консьюмер
+	go consumer.readMessage()
+
 	// 4. Создается экземпляр структуры Router для
 	router := NewRouter(strg)
 
