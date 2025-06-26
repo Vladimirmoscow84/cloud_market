@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS orders(
     delivery_service TEXT NOT NULL,
     shardkey TEXT NOT NULL,
     sm_id INT,
-    date_created TEXT NOT NULL,
+    date_created TIMESTAMP,
     oof_chard TEXT NOT NULL 
 );
 
