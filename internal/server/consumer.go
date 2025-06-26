@@ -13,6 +13,8 @@ type Consumer struct {
 	reader *kafka.Reader
 }
 
+// https://habr.com/ru/articles/894056/
+
 // создаем конструктор консьюмера
 func newConsumer(strg *storage.Storage) *Consumer {
 
