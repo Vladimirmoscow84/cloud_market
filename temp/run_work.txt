@@ -1,0 +1,32 @@
+Миграции:
+migrate create -ext sql -dir /c/KKO11/Golang/Gavrilin/cloud_market/db/dumps -seq tables
+
+migrate -path /c/KKO11/Golang/Gavrilin/cloud_market/db/dumps -database "postgres://localhost:5432/cloud_market?sslmode=disable&user=postgres&password=password" up
+
+migrate -path /c/KKO11/Golang/Gavrilin/cloud_market/db/dumps -database "postgres://localhost:5432/cloud_market?sslmode=disable&user=postgres&password=password" down
+
+
+
+_______________________________________________________________
+
+
+
+
+
+
+
+Для тестовой базы:
+
+migrate -path /c/KKO11/Golang/revelio/revelio_mainServer/internal/migrations -database "postgres://localhost:5432/revelioTest?sslmode=disable&user=postgres&password=password" up
+migrate -path /c/KKO11/Golang/revelio/revelio_mainServer/internal/migrations -database "postgres://localhost:5432/revelioTest?sslmode=disable&user=postgres&password=password" down
+
+
+psql -h localhost -p 5434 -U postgres -d revelio
+
+Компиляция и запуск:
+
+cd /c/KKO11/Golang/revelio/revelio_mainServer/cmd/revelio_mainServer && go build && start revelio_mainServer
+
+Запуск:
+
+cd /c/KKO11/Golang/revelio/revelio_mainServer/cmd/revelio_mainServer && start revelio_mainServer
