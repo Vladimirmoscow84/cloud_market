@@ -2,6 +2,7 @@ package server
 
 import (
 	"cloud_market/internal/storage"
+	"context"
 	"fmt"
 	"net/http"
 )
@@ -17,10 +18,25 @@ func Run() {
 	}
 
 	// 7. Создание экземпляра структуры консьюмер
-	consumer := newConsumer(strg)
+	// consumer := newConsumer(strg)
 
 	//8 запускаем в отдельной горутине  консьюмер
-	go consumer.readMessage()
+	// go consumer.readMessage()
+
+	kc := kafkaConfig{
+		Brokers:     "172.31.141.173:9092",
+		Topic:       "cloud_market",
+		Group:       "cloud_market_group",
+		MessageChan: make(chan []byte),
+	}
+
+	ks := NewKafkaService(context.Background(), kc)
+	defer ks.Stop()
+	go ks.Start(context.Background())
+	krs := kafkaReadService{
+		messagesChan: kc.MessageChan,
+	}
+	go krs.Process(context.Background())
 
 	// 4. Создается экземпляр структуры Router для
 	router := NewRouter(strg)
