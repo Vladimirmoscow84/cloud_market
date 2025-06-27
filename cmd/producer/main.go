@@ -26,9 +26,9 @@ func main() {
 	if err != nil {
 		fmt.Printf("error time parse: %v\n", err)
 	}
-	for range 50 {
+	for i := range 50 {
 		m := model.Order{
-			OrderUID:    "325klh",
+			OrderUID:    fmt.Sprintf("b563feb7b2b84b6test_%d", i),
 			TrackNumber: "sgg4",
 			Entry:       "sdw",
 			Delivery: model.Delivery{

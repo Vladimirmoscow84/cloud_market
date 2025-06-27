@@ -25,5 +25,21 @@ func New(databaseURI string) (*Storage, error) {
 }
 
 func (s *Storage) AddOrder(order model.Order) error {
+	s.DB.Exec(`
+		BEGIN;
+	
+		INSERT INTO orders
+			(order_uid, track_number)
+		VALUES
+			($1, $2);
+	
+		INSERT INTO orders
+			(order_uid, track_number)
+		VALUES
+			($3, $4);
+
+		COMMIT;
+
+	`, order.OrderUID, order.TrackNumber)
 	return nil
 }
