@@ -1,6 +1,8 @@
 package server
 
 import (
+	"cloud_market/internal/model"
+	"cloud_market/internal/storage"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -8,15 +10,12 @@ import (
 
 type kafkaReadService struct {
 	messagesChan <-chan []byte
-}
-
-type message struct {
-	Field string `json:"field"`
+	strg         *storage.Storage
 }
 
 func (krs *kafkaReadService) Process(ctx context.Context) {
 	for msg := range krs.messagesChan {
-		m := message{}
+		m := model.Order{}
 
 		err := json.Unmarshal(msg, &m)
 		if err != nil {
@@ -24,5 +23,6 @@ func (krs *kafkaReadService) Process(ctx context.Context) {
 			continue
 		}
 		fmt.Println("message:", m)
+		krs.strg.AddOrder(m)
 	}
 }

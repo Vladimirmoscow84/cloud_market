@@ -10,7 +10,7 @@ import (
 func Run() {
 
 	databaseURI := "host=localhost port=5432 user=postgres password=password dbname=cloud_market sslmode=disable"
-	// 2. Создается экземпляр структуры storage.Storage для дальнейшей работы с базой данных
+	// 2. Создается экземпляр структуры storage.Storage для дальнейшей работы с БД (хранилищем)
 	strg, err := storage.New(databaseURI)
 	if err != nil {
 		fmt.Println("postgres DB initialization error:", err)
@@ -35,6 +35,7 @@ func Run() {
 	go ks.Start(context.Background())
 	krs := kafkaReadService{
 		messagesChan: kc.MessageChan,
+		strg:         strg,
 	}
 	go krs.Process(context.Background())
 

@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi"
 )
 
+// Структура для работы
 type Router struct {
 	strg *storage.Storage
 }

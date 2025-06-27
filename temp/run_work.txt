@@ -6,6 +6,11 @@ migrate -path /c/KKO11/Golang/Gavrilin/cloud_market/db/dumps -database "postgres
 
 migrate -path /c/KKO11/Golang/Gavrilin/cloud_market/db/dumps -database "postgres://localhost:5432/cloud_market?sslmode=disable&user=postgres&password=password" down
 
+_____________________________________________________________
+
+Миграции на домашнем Маке
+
+
 
 
 _______________________________________________________________

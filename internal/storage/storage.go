@@ -1,10 +1,13 @@
 package storage
 
 import (
+	"cloud_market/internal/model"
+
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 )
 
+// структура для работы с БД (хранилищем)
 type Storage struct {
 	DB *sqlx.DB
 }
@@ -19,4 +22,8 @@ func New(databaseURI string) (*Storage, error) {
 	return &Storage{
 		DB: db,
 	}, nil
+}
+
+func (s *Storage) AddOrder(order model.Order) error {
+	return nil
 }
