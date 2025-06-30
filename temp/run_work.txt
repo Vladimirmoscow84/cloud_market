@@ -16,7 +16,7 @@ migrate -path /Users/mac/Dev/WBTech/cloud_market/db/dumps -database "postgres://
 
 migrate -path /Users/mac/Dev/WBTech/cloud_market/db/dumps -database "postgres://localhost:5433/cloud_market?sslmode=disable&user=postgres&password=password" down
 
- РАБОЧИЙ ВАРИК с УЧЕТОМ ГОВНА 
+ ***РАБОЧИЙ ВАРИК с УЧЕТОМ ошибок переменной окружения  (PGLOCALEDIR=/Library/PostgreSQL/17/share/locale)***
  ______________________________
  env -u PGLOCALEDIR migrate -database "postgres://localhost:7701/cloud_market?sslmode=disable&user=postgres&password=password" -path /Users/mac/Dev/WBTech/cloud_market/db/dumps up
 
