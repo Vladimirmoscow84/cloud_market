@@ -12,12 +12,21 @@ _____________________________________________________________
 
 migrate create -ext sql -dir /Users/mac/Dev/WBTech/cloud_market/db/dumps -seq tables
 
-migrate -path /Users/mac/Dev/WBTech/cloud_market/db/dumps -database "postgres://localhost:5432/cloud_market?sslmode=disable&user=postgres&password=password" up
+migrate -path /Users/mac/Dev/WBTech/cloud_market/db/dumps -database "postgres://localhost:7701/cloud_market?sslmode=disable&user=postgres&password=password" up
 
-migrate -path /Users/mac/Dev/WBTech/cloud_market/db/dumps -database "postgres://localhost:5432/cloud_market?sslmode=disable&user=postgres&password=password" down
+migrate -path /Users/mac/Dev/WBTech/cloud_market/db/dumps -database "postgres://localhost:5433/cloud_market?sslmode=disable&user=postgres&password=password" down
 
+ РАБОЧИЙ ВАРИК с УЧЕТОМ ГОВНА 
+ ______________________________
+ env -u PGLOCALEDIR migrate -database "postgres://localhost:7701/cloud_market?sslmode=disable&user=postgres&password=password" -path /Users/mac/Dev/WBTech/cloud_market/db/dumps up
+
+ env -u PGLOCALEDIR migrate -database "postgres://localhost:7701/cloud_market?sslmode=disable&user=postgres&password=password" -path /Users/mac/Dev/WBTech/cloud_market/db/dumps down
 _______________________________________________________________
 
+
+migrate -path /Users/mac/Dev/WBTech/cloud_market/db/dumps -database "postgres://postgres:password@localhost:7701/cloud_market?sslmode=disable" up
+
+PGLOCALEDIR="" migrate -database "postgres://localhost:7701/cloud_market?sslmode=disable&user=postgres&password=password" -path ./migrations up
 
 
 
