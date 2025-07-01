@@ -11,7 +11,7 @@ type Router struct {
 	strg *storage.Storage
 }
 
-// 3. созадется функция-конструктор для создания экземпляра структуры Router
+// 3. NewRouter  - функция-конструктор для создания экземпляра структуры Router
 func NewRouter(strg *storage.Storage) *Router {
 
 	return &Router{
@@ -19,7 +19,7 @@ func NewRouter(strg *storage.Storage) *Router {
 	}
 }
 
-// 5. метод для создания экземпляра роутера chi.Mux, который соответствует интрефейсу http.Handler
+// 5. Routers - метод для создания экземпляра роутера chi.Mux, который соответствует интрефейсу http.Handler
 func (r *Router) Routers() *chi.Mux {
 	router := chi.NewRouter()
 

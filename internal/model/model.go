@@ -19,6 +19,16 @@ type Order struct {
 	OofShard          string    `json:"oof_shard" validate:"required"`
 }
 
+type Delivery struct {
+	Name    string `json:"name" validate:"required"`
+	Phone   string `json:"phone" validate:"required"`
+	Zip     string `json:"zip" validate:"required"`
+	City    string `json:"city" validate:"required"`
+	Address string `json:"address" validate:"required"`
+	Region  string `json:"region" validate:"required"`
+	Email   string `json:"email" validate:"required"`
+}
+
 type Payment struct {
 	Transaction  string `json:"transaction" validate:"required"`
 	RequestID    string `json:"request_id"`
@@ -30,16 +40,6 @@ type Payment struct {
 	DeliveryCost int    `json:"delivery_cost" validate:"required"`
 	GoodsTotal   int    `json:"goods_total" validate:"required"`
 	CustomFee    int    `json:"custom_fee"`
-}
-
-type Delivery struct {
-	Name    string `json:"name" validate:"required"`
-	Phone   string `json:"phone" validate:"required"`
-	Zip     string `json:"zip" validate:"required"`
-	City    string `json:"city" validate:"required"`
-	Address string `json:"address" validate:"required"`
-	Region  string `json:"region" validate:"required"`
-	Email   string `json:"email" validate:"required"`
 }
 
 type Item struct {
