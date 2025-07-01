@@ -16,12 +16,23 @@ migrate -path /Users/mac/Dev/WBTech/cloud_market/db/dumps -database "postgres://
 
 migrate -path /Users/mac/Dev/WBTech/cloud_market/db/dumps -database "postgres://localhost:5433/cloud_market?sslmode=disable&user=postgres&password=password" down
 
+_______________________________________________________________
+Миграции на домашнем Маке:
  ***РАБОЧИЙ ВАРИК с УЧЕТОМ ошибок переменной окружения  (PGLOCALEDIR=/Library/PostgreSQL/17/share/locale)***
- ______________________________
+
  env -u PGLOCALEDIR migrate -database "postgres://localhost:7701/cloud_market?sslmode=disable&user=postgres&password=password" -path /Users/mac/Dev/WBTech/cloud_market/db/dumps up
 
  env -u PGLOCALEDIR migrate -database "postgres://localhost:7701/cloud_market?sslmode=disable&user=postgres&password=password" -path /Users/mac/Dev/WBTech/cloud_market/db/dumps down
 _______________________________________________________________
+*********KAFKA**********
+
+cd /mnt/c/golovanev/dev/sdk/kafka_2.13-4.0.0/
+KAFKA_CLUSTER_ID="$(bin/kafka-storage.sh random-uuid)"
+bin/kafka-storage.sh format --standalone -t $KAFKA_CLUSTER_ID -c config/server.properties
+bin/kafka-server-start.sh config/server.properties
+
+_______________________________________________________________
+
 
 
 migrate -path /Users/mac/Dev/WBTech/cloud_market/db/dumps -database "postgres://postgres:password@localhost:7701/cloud_market?sslmode=disable" up
