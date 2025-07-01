@@ -16,6 +16,7 @@ func Run() {
 		fmt.Println("postgres DB initialization error:", err)
 		return
 	}
+	defer strg.DB.Close()
 
 	// 7. Создание экземпляра структуры консьюмер
 	// consumer := newConsumer(strg)
@@ -48,7 +49,5 @@ func Run() {
 		fmt.Println("error of start server:", err)
 		return
 	}
-
-	router.strg.DB.Close()
 
 }

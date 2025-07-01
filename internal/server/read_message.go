@@ -23,6 +23,6 @@ func (krs *kafkaReadService) Process(ctx context.Context) {
 			continue
 		}
 		fmt.Println("message:", m)
-		krs.strg.AddOrder(m)
+		krs.strg.AddOrder(ctx, m)
 	}
 }
