@@ -26,21 +26,81 @@ func main() {
 	if err != nil {
 		fmt.Printf("error time parse: %v\n", err)
 	}
-	for i := range 50 {
+	for i := range 5 {
 		m := model.Order{
 			OrderUID:    fmt.Sprintf("b563feb7b2b84b6test_%d", i),
-			TrackNumber: "sgg4",
-			Entry:       "sdw",
+			TrackNumber: "WBILMTESTTRACK",
+			Entry:       "WBIL",
 			Delivery: model.Delivery{
-				Name: "sdell",
+				Name:    "Test Testov",
+				Phone:   "+9720000000",
+				Zip:     "2639809",
+				City:    "Kiryat Mozkin",
+				Address: "Ploshad Mira 15",
+				Region:  "Kraiot",
+				Email:   "test@gmail.com",
 			},
 			Payment: model.Payment{
-				Transaction: "sdgsdg",
+				Transaction:  "b563feb7b2b84b6test",
+				RequestID:    "",
+				Currency:     "USD",
+				Provider:     "wbpay",
+				Amount:       1817,
+				PaymentDt:    1637907727,
+				Bank:         "alpha",
+				DeliveryCost: 1500,
+				GoodsTotal:   317,
+				CustomFee:    0,
 			},
 			Items: []model.Item{
-				{ChrtID: 234234},
+				{
+					ChrtID:      9934930,
+					TrackNumber: "WBILMTESTTRACK",
+					Price:       453,
+					Rid:         "ab4219087a764ae0btest",
+					Name:        "Mascaras",
+					Sale:        30,
+					Size:        "0",
+					TotalPrice:  317,
+					NmID:        2389212,
+					Brand:       "Vivienne Sabo",
+					Status:      202,
+				},
+				{
+					ChrtID:      9934922,
+					TrackNumber: "WBILMTESTTRACK",
+					Price:       453,
+					Rid:         "ab4219087a764ae0btest",
+					Name:        "Mascaras",
+					Sale:        30,
+					Size:        "0",
+					TotalPrice:  317,
+					NmID:        2389212,
+					Brand:       "Vivienne Sabo",
+					Status:      203,
+				},
+				{
+					ChrtID:      9934910,
+					TrackNumber: "WBILMTESTTRACK",
+					Price:       453,
+					Rid:         "ab4219087a764ae0btest",
+					Name:        "Mascaras",
+					Sale:        30,
+					Size:        "0",
+					TotalPrice:  317,
+					NmID:        2389212,
+					Brand:       "Vivienne Sabo",
+					Status:      207,
+				},
 			},
-			DateCreated: t,
+			Locale:            "en",
+			InternalSignature: "",
+			CustomerID:        "test",
+			DeliveryService:   "meest",
+			Shardkey:          "9",
+			SmID:              99,
+			DateCreated:       t,
+			OofShard:          "1",
 		}
 
 		mJSON, err := json.Marshal(m)
@@ -61,7 +121,7 @@ func main() {
 		} else {
 			fmt.Printf("Message sent to partition %d at offset %d\n", partititon, offset)
 		}
-		time.Sleep(time.Second)
+		time.Sleep(time.Second * 15)
 	}
 
 }
