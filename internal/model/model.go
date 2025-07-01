@@ -43,15 +43,16 @@ type Delivery struct {
 }
 
 type Item struct {
-	ChrtID      int    `json:"chrt_id" validate:"required"`
-	TrackNumber string `json:"track_number" validate:"required"`
-	Price       int    `json:"price" validate:"required"`
-	Rid         string `json:"rid" validate:"required"`
-	Name        string `json:"name" validate:"required"`
-	Sale        int    `json:"sale"`
-	Size        string `json:"size" validate:"required"`
-	TotalPrice  int    `json:"total_price"`
-	NmID        int    `json:"nm_id" validate:"required"`
-	Brand       string `json:"brand" validate:"required"`
-	Status      int    `json:"status" validate:"required"`
+	ChrtID      int    `json:"chrt_id" validate:"required" db:"chrt_id"`
+	TrackNumber string `json:"track_number" validate:"required" db:"track_number"`
+	Price       int    `json:"price" validate:"required" db:"price"`
+	Rid         string `json:"rid" validate:"required" db:"rid"`
+	Name        string `json:"name" validate:"required" db:"name"`
+	Sale        int    `json:"sale" db:"sale"`
+	Size        string `json:"size" validate:"required" db:"size"`
+	TotalPrice  int    `json:"total_price" db:"total_price"`
+	NmID        int    `json:"nm_id" validate:"required" db:"nm_id"`
+	Brand       string `json:"brand" validate:"required" db:"brand"`
+	Status      int    `json:"status" validate:"required" db:"status"`
+	OrderID     int    `json:"-" db:"order_id"`
 }
