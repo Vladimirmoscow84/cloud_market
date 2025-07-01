@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS orders(
     internal_signature TEXT,
     customer_id TEXT,
     delivery_service TEXT,
-    shardkey TEXT NOT,
+    shardkey TEXT,
     sm_id INT,
     date_created TIMESTAMP,
     oof_chard TEXT
@@ -17,13 +17,13 @@ CREATE TABLE IF NOT EXISTS orders(
 
 CREATE TABLE IF NOT EXISTS delivery(
     id SERIAL PRIMARY KEY,
-    name VARCHAR(250) ,
+    name VARCHAR(250),
     phone VARCHAR(250),
-    zip TEXT ,
-    city TEXT ,
-    address TEXT ,
-    region TEXT ,
-    email TEXT ,
+    zip TEXT,
+    city TEXT,
+    address TEXT,
+    region TEXT,
+    email TEXT,
     order_id INT, 
     FOREIGN KEY (order_id) REFERENCES orders (id)
 );
