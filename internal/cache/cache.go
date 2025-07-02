@@ -6,21 +6,21 @@ import (
 	"sync"
 )
 
-type Cashe struct {
+type Cache struct {
 	data map[string]model.Order
 	mu   sync.RWMutex
 }
 
 // NewCache возвращает структуру с инициализированным кэшом
-func NewCashe() *Cashe {
-	return &Cashe{
+func NewCashe() *Cache {
+	return &Cache{
 		data: make(map[string]model.Order),
 		mu:   sync.RWMutex{},
 	}
 }
 
 // Get возвращает данные из кэша в соответствии с запрошенным id  или ошибку, если указанного id нет в кэш
-func (c *Cashe) Get(id string) (model.Order, error) {
+func (c *Cache) Get(id string) (model.Order, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -32,7 +32,7 @@ func (c *Cashe) Get(id string) (model.Order, error) {
 }
 
 // Put добавляет заказ в кэш
-func (c *Cashe) Put(order model.Order) {
+func (c *Cache) Put(order model.Order) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.data[order.OrderUID] = order
@@ -40,7 +40,7 @@ func (c *Cashe) Put(order model.Order) {
 }
 
 // IsExist проверяет наличие заказа в кэш по его id
-func (c *Cashe) IsExist(id string) bool {
+func (c *Cache) IsExist(id string) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	if _, ok := c.data[id]; !ok {
