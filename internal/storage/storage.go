@@ -125,7 +125,7 @@ func (s *Storage) FillingCache(ctx context.Context, cache *cache.Cache) error {
 	err := s.DB.SelectContext(ctx, &rows, `
 	SELECT 
 		o.*,
-		d.name as "delivery_name"
+		d.name as "delivery.name",
 		d.phone as "delivery.phone",
 		d.zip as "delivery.zip",
 		d.city as "delivery.city",

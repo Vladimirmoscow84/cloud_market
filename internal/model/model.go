@@ -16,8 +16,8 @@ type Order struct {
 	Shardkey          string    `json:"shardkey" validate:"required" db:"shardkey"`
 	SmID              int       `json:"sm_id" validate:"required" db:"sm_id"`
 	DateCreated       time.Time `json:"date_created" validate:"required" db:"date_created"`
-	OofShard          string    `json:"oof_shard" validate:"required" db:"oof_shard"`
-	ID                int       `json:"-" db:"order_id"`
+	OofShard          string    `json:"oof_shard" validate:"required" db:"oof_chard"`
+	ID                int       `json:"-" db:"id"`
 }
 
 type Delivery struct {

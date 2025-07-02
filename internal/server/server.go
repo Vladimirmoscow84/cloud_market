@@ -24,7 +24,10 @@ func Run() {
 	//...Создаем экземпляр кэш
 	c := cache.NewCashe()
 	//...Заполняем кэш из БД
-	strg.FillingCache(ctx, c)
+	err = strg.FillingCache(ctx, c)
+	if err != nil {
+		fmt.Printf("ошибка заполнения кэш: %v", err)
+	}
 
 	//Проверка работы fillinCache
 	fmt.Println("Внимание!!! КЭШ!!!")
