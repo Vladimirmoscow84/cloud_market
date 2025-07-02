@@ -16,7 +16,7 @@ func main() {
 
 	// Создание нового продюсера
 
-	producer, err := sarama.NewSyncProducer([]string{"172.31.141.173:9092"}, config)
+	producer, err := sarama.NewSyncProducer([]string{":9092"}, config)
 	if err != nil {
 		fmt.Printf("failed to start producer: %v\n", err)
 	}

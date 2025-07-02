@@ -9,7 +9,7 @@ import (
 
 func Run() {
 
-	databaseURI := "host=localhost port=5432 user=postgres password=password dbname=cloud_market sslmode=disable"
+	databaseURI := "host=localhost port=7701 user=postgres password=password dbname=cloud_market sslmode=disable"
 	// 2. Создается экземпляр структуры storage.Storage для дальнейшей работы с БД (хранилищем)
 	strg, err := storage.New(databaseURI)
 	if err != nil {
@@ -25,7 +25,7 @@ func Run() {
 	// go consumer.readMessage()
 
 	kc := kafkaConfig{
-		Brokers:     "172.31.141.173:9092",
+		Brokers:     ":9092",
 		Topic:       "cloud_market",
 		Group:       "cloud_market_group",
 		MessageChan: make(chan []byte),
