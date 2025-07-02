@@ -3,6 +3,7 @@ package cache
 import (
 	"cloud_market/internal/model"
 	"errors"
+	"fmt"
 	"sync"
 )
 
@@ -47,4 +48,9 @@ func (c *Cache) IsExist(id string) bool {
 		return false
 	}
 	return true
+}
+
+// Вреенный метод для дебага
+func (c *Cache) Out() {
+	fmt.Println(c.data)
 }
