@@ -144,7 +144,9 @@ func (s *Storage) FillingCache(ctx context.Context, cache *cache.Cache) error {
 		p.custom_fee as "payment.custom_fee"
 		FROM orders o
 		LEFT JOIN delivery d ON d.order_id = o.id
-		LEFT JOIN payment p ON p.order_id = o.id`)
+		LEFT JOIN payment p ON p.order_id = o.id
+		ORDER BY o.id DESC 
+		LIMIT 2`)
 
 	if err != nil {
 		return fmt.Errorf("failed to get orders with joins: %w", err)
@@ -169,31 +171,58 @@ func (s *Storage) FillingCache(ctx context.Context, cache *cache.Cache) error {
 
 }
 
-// func (s *Storage) FillingCache(cache *cache.Cache) error {
-// 	rows, err := s.DB.NamedQueryContext(context.Background(), `
-// 	SELECT * FROM orders
-// 	`, nil)
-// 	if err != nil {
-// 		return fmt.Errorf("error filling the cache: %w", err)
+// GetOrderById возвращает из БД данные в соответствии с запрошенным id
+func (s *Storage) GetOrderById(ctx context.Context, orderUID string) (model.Order, error) {
+	// времменная структура для заполнения ответа
+	type orderRow struct {
+		model.Order
+		Delivery model.Delivery `db:"delivery"`
+		Payment  model.Payment  `db:"payment"`
+	}
+	var row orderRow
 
-// 	}
-// 	defer rows.Close()
+	// Основной запрос с JOIN для delivery и payment
+	err := s.DB.SelectContext(ctx, &row, `
+	SELECT 
+		o.*,
+		d.name as "delivery.name",
+		d.phone as "delivery.phone",
+		d.zip as "delivery.zip",
+		d.city as "delivery.city",
+		d.address as "delivery.address",
+		d.region as "delivery.region",
+		d.email as "delivery.email",
+		p.transaction as "payment.transaction",
+		p.request_id as "payment.request_id",
+		p.currency as "payment.currency",
+		p.provider as "payment.provider",
+		p.amount as "payment.amount",
+		p.payment_dt as "payment.payment_dt",
+		p.bank as "payment.bank",
+		p.delivery_cost as "payment.delivery_cost",
+		p.goods_total as "payment.goods_total",
+		p.custom_fee as "payment.custom_fee"
+		FROM orders o
+		LEFT JOIN delivery d ON d.order_id = o.id
+		LEFT JOIN payment p ON p.order_id = o.id
+		WHERE o.order_uid = $1
+		`, orderUID)
 
-// 	orders := make([]model.Order, 0)
-// 	for rows.Next() {
-// 		var order model.Order
-// 		err = rows.StructScan(&order)
-// 		if err != nil {
-// 			return fmt.Errorf("error scannig rows: %w", err)
-// 		}
-// 		orders = append(orders, order)
-// 	}
+	if err != nil {
+		return model.Order{}, fmt.Errorf("failed to get orders with joins: %w", err)
+	}
 
-// 	if err = rows.Err(); err != nil {
-// 		return fmt.Errorf("error iterating over results: %w", err)
-// 	}
+	order := row.Order
+	order.Delivery = row.Delivery
+	order.Payment = row.Payment
 
-// 	// cache.Put(order)
+	err = s.DB.SelectContext(ctx, &order.Items, `
+			SELECT chrt_id, track_number, price, rid, name, sale,
+				   size, total_price, nm_id, brand, status
+			FROM items WHERE order_id = $1`, order.ID)
+	if err != nil {
+		return model.Order{}, fmt.Errorf("failed to get items for order %s: %w", order.OrderUID, err)
+	}
+	return order, nil
 
-// 	return rows.Err()
-// }
+}

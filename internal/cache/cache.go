@@ -50,7 +50,7 @@ func (c *Cache) IsExist(id string) bool {
 	return true
 }
 
-// Вреенный метод для дебага
+// Временный метод для дебага
 func (c *Cache) Out() {
 	fmt.Println(c.data)
 }

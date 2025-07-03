@@ -4,6 +4,7 @@ import (
 	"cloud_market/internal/cache"
 	"cloud_market/internal/storage"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -40,6 +41,18 @@ func Run() {
 
 	//8 запускаем в отдельной горутине  консьюмер
 	// go consumer.readMessage()
+	uid := "b563feb7b2b84b6test2"
+	fmt.Printf("получение данных по order_uid: %s", uid)
+	answer, err := strg.GetOrderById(ctx, uid)
+	if err != nil {
+		return
+	}
+	data, err := json.MarshalIndent(answer, "", "\t")
+	if err != nil {
+		return
+	}
+
+	fmt.Println(data)
 
 	kc := kafkaConfig{
 		Brokers:     ":9092",
