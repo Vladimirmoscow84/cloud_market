@@ -53,7 +53,7 @@ func Run() {
 		return
 	}
 
-	fmt.Println(data)
+	fmt.Println(string(data))
 
 	kc := kafkaConfig{
 		Brokers:     ":9092",
