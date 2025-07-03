@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 )
 
 func Run() {
@@ -31,24 +30,26 @@ func Run() {
 	}
 
 	//Проверка работы fillinCache
-	fmt.Println("Внимание!!! КЭШ!!!")
-	fmt.Println("Спасибо за внимание")
-	c.Out()
-	time.Sleep(3 * time.Second)
+	// fmt.Println("Внимание!!! КЭШ!!!")
+	// fmt.Println("Спасибо за внимание")
+	// c.Out()
+	// time.Sleep(3 * time.Second)
 
 	// 7. Создание экземпляра структуры консьюмер
 	// consumer := newConsumer(strg)
 
 	//8 запускаем в отдельной горутине  консьюмер
 	// go consumer.readMessage()
-	uid := "b563feb7b2b84b6test2"
+	uid := "b563feb7b2b84b6test_2"
 	fmt.Printf("получение данных по order_uid: %s", uid)
 	answer, err := strg.GetOrderById(ctx, uid)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	data, err := json.MarshalIndent(answer, "", "\t")
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
