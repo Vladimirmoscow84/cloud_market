@@ -14,7 +14,7 @@ func Run() {
 	ctx := context.Background()
 
 	viper.AutomaticEnv()
-	viper.SetConfigFile(".env")
+	viper.SetConfigFile("../../.env")
 	err := viper.ReadInConfig()
 	if err != nil {
 		fmt.Printf("Ошибка загрузки .env файла: %v\n", err)
@@ -23,9 +23,9 @@ func Run() {
 
 	databaseURI := viper.GetString("DATABASE_URI")
 	addr := viper.GetString("SERVER_ADDRESS")
-	kafkaBroker := viper.GetString("KAFKA_BROKER")
-	kafkaTopic := viper.GetString("KAFKA_TOPIC")
-	kafkaGroup := viper.GetString("KAFKA_GROUP")
+	// kafkaBroker := viper.GetString("KAFKA_BROKER")
+	// kafkaTopic := viper.GetString("KAFKA_TOPIC")
+	// kafkaGroup := viper.GetString("KAFKA_GROUP")
 
 	// 2. Создается экземпляр структуры storage.Storage для дальнейшей работы с БД (хранилищем)
 	strg, err := storage.New(databaseURI)
@@ -43,21 +43,21 @@ func Run() {
 		fmt.Printf("ошибка заполнения кэш: %v", err)
 	}
 
-	kc := kafkaConfig{
-		Brokers:     kafkaBroker,
-		Topic:       kafkaTopic,
-		Group:       kafkaGroup,
-		MessageChan: make(chan []byte),
-	}
+	// kc := kafkaConfig{
+	// 	Brokers:     kafkaBroker,
+	// 	Topic:       kafkaTopic,
+	// 	Group:       kafkaGroup,
+	// 	MessageChan: make(chan []byte),
+	// }
 
-	ks := NewKafkaService(ctx, kc)
-	defer ks.Stop()
-	go ks.Start(ctx)
-	krs := kafkaReadService{
-		messagesChan: kc.MessageChan,
-		strg:         strg,
-	}
-	go krs.Process(ctx)
+	// ks := NewKafkaService(ctx, kc)
+	// defer ks.Stop()
+	// go ks.Start(ctx)
+	// krs := kafkaReadService{
+	// 	messagesChan: kc.MessageChan,
+	// 	strg:         strg,
+	// }
+	// go krs.Process(ctx)
 
 	// 4. Создается экземпляр структуры Router для
 	router := NewRouter(strg, c)

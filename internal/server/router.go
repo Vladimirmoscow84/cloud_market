@@ -37,8 +37,16 @@ func NewRouter(strg *storage.Storage, cache *cache.Cache) *Router {
 func (r *Router) Routers() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/order", r.IdHandler_Get)
+	router.Options("/order", r.Opt)
 
 	return router
+}
+
+func (rt *Router) Opt(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	w.WriteHeader(http.StatusOK)
 }
 
 //IdHandler_Get  - функция для возврата данных заказа по номеру UID из кэш.

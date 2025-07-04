@@ -1,46 +1,51 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
+  <head>
     <meta charset="UTF-8">
-    <title>Запрос к API</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        #responseArea {
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            padding: 10px;
-            background-color: #fafafa;
-        }
-    </style>
-</head>
-<body>
+    <title>Отправка запроса на сервер</title>
+  </head>
+  <body>
     <h1>Отправка запроса на сервер</h1>
     <form id="requestForm">
-        <label for="uidInput">UID:</label><br>
-        <input type="text" id="uidInput"><br><br>
-        <button type="submit">Отправить запрос</button>
+      <label for="uidInput">Введите UID заказа:</label><br />
+      <input type="text" id="uidInput" /><br /><br />
+      <button type="submit">Отправить запрос</button>
     </form>
-    
+
     <div id="responseArea"></div>
 
     <script>
-        document.getElementById('requestForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Отменяем стандартную отправку формы
+      document
+        .getElementById("requestForm")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault()
 
-            const uid = document.getElementById('uidInput').value.trim();
-            
-            if (!uid) return alert("Необходимо заполнить UID!");
+          const uid = document.getElementById("uidInput").value.trim()
 
-            fetch(`http://localhost:7540/?uid=${uid}`, { method: 'GET' })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('responseArea').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`; // Красивое отображение JSON
-                })
-                .catch(error => console.error('Ошибка:', error));
-        });
+          if (!uid) return alert("Необходимо заполнить UID!")
+
+          try {
+            const response = await fetch(
+              `http://localhost:7540/order?order_uid=${uid}`,
+              {
+                method: "OPTIONS",
+                headers: {
+                  "Content-Type": "text/plain",
+                },
+              }
+            )
+            if (!response.ok) {
+              throw new Error(
+                `Ошибка: ${response.status} - ${response.statusText}`
+              )
+            }
+            const result = await response.text()
+            alert(result)
+          } catch (error) {
+            console.error("Ошибка: ", error)
+            alert("Произошла ошибка при отправке данных")
+          }
+        })
     </script>
-</body>
+  </body>
 </html>
