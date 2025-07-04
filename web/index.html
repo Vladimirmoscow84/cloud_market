@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Запрос к API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #responseArea {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <h1>Отправка запроса на сервер</h1>
+    <form id="requestForm">
+        <label for="uidInput">UID:</label><br>
+        <input type="text" id="uidInput"><br><br>
+        <button type="submit">Отправить запрос</button>
+    </form>
+    
+    <div id="responseArea"></div>
+
+    <script>
+        document.getElementById('requestForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Отменяем стандартную отправку формы
+
+            const uid = document.getElementById('uidInput').value.trim();
+            
+            if (!uid) return alert("Необходимо заполнить UID!");
+
+            fetch(`http://localhost:7540/?uid=${uid}`, { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('responseArea').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`; // Красивое отображение JSON
+                })
+                .catch(error => console.error('Ошибка:', error));
+        });
+    </script>
+</body>
+</html>
