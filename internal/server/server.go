@@ -55,6 +55,7 @@ func Run() {
 
 	// fmt.Println(string(data))
 
+	/* temp!!!
 	kc := kafkaConfig{
 		Brokers:     ":9092",
 		Topic:       "cloud_market",
@@ -70,9 +71,10 @@ func Run() {
 		strg:         strg,
 	}
 	go krs.Process(ctx)
+	*/
 
 	// 4. Создается экземпляр структуры Router для
-	router := NewRouter(strg)
+	router := NewRouter(strg, c)
 
 	// 6. Запуск локального сервера
 	err = http.ListenAndServe(":7540", router.Routers())
