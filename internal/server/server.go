@@ -6,12 +6,27 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+
+	"github.com/spf13/viper"
 )
 
 func Run() {
 	ctx := context.Background()
 
-	databaseURI := "host=localhost port=7701 user=postgres password=password dbname=cloud_market sslmode=disable"
+	viper.AutomaticEnv()
+	viper.SetConfigFile(".env")
+	err := viper.ReadInConfig()
+	if err != nil {
+		fmt.Printf("Ошибка загрузки .env файла: %v\n", err)
+		return
+	}
+
+	databaseURI := viper.GetString("DATABASE_URI")
+	addr := viper.GetString("SERVER_ADDRESS")
+	kafkaBroker := viper.GetString("KAFKA_BROKER")
+	kafkaTopic := viper.GetString("KAFKA_TOPIC")
+	kafkaGroup := viper.GetString("KAFKA_GROUP")
+
 	// 2. Создается экземпляр структуры storage.Storage для дальнейшей работы с БД (хранилищем)
 	strg, err := storage.New(databaseURI)
 	if err != nil {
@@ -28,38 +43,10 @@ func Run() {
 		fmt.Printf("ошибка заполнения кэш: %v", err)
 	}
 
-	//Проверка работы fillinCache
-	// fmt.Println("Внимание!!! КЭШ!!!")
-	// fmt.Println("Спасибо за внимание")
-	// c.Out()
-	// time.Sleep(3 * time.Second)
-
-	// 7. Создание экземпляра структуры консьюмер
-	// consumer := newConsumer(strg)
-
-	//8 запускаем в отдельной горутине  консьюмер
-	// go consumer.readMessage()
-
-	// uid := "b563feb7b2b84b6test_2"
-	// fmt.Printf("получение данных по order_uid: %s", uid)
-	// answer, err := strg.GetOrderById(ctx, uid)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
-	// data, err := json.MarshalIndent(answer, "", "\t")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
-
-	// fmt.Println(string(data))
-
-	/* temp!!!
 	kc := kafkaConfig{
-		Brokers:     ":9092",
-		Topic:       "cloud_market",
-		Group:       "cloud_market_group",
+		Brokers:     kafkaBroker,
+		Topic:       kafkaTopic,
+		Group:       kafkaGroup,
 		MessageChan: make(chan []byte),
 	}
 
@@ -71,13 +58,13 @@ func Run() {
 		strg:         strg,
 	}
 	go krs.Process(ctx)
-	*/
 
 	// 4. Создается экземпляр структуры Router для
 	router := NewRouter(strg, c)
 
 	// 6. Запуск локального сервера
-	err = http.ListenAndServe(":7540", router.Routers())
+	fmt.Printf("Server starting on %s\n", addr)
+	err = http.ListenAndServe(addr, router.Routers())
 	if err != nil {
 		fmt.Println("error of start server:", err)
 		return

@@ -36,7 +36,7 @@ func NewRouter(strg *storage.Storage, cache *cache.Cache) *Router {
 
 func (r *Router) Routers() *chi.Mux {
 	router := chi.NewRouter()
-	router.Get("/order/order_uid", r.IdHandler_Get)
+	router.Get("/order", r.IdHandler_Get)
 
 	return router
 }
@@ -68,15 +68,20 @@ func (rt *Router) IdHandler_Get(w http.ResponseWriter, r *http.Request) {
 	} else {
 		answer, err := rt.strg.GetOrderById(context.Background(), uid)
 		if err != nil {
-			sendError(w, "error capturing order from database", err)
-			return
+			switch err.Error() {
+			case "no exists in database":
+				sendError(w, "no exists in database", err)
+				return
+			default:
+				sendError(w, "error capturing order from database", err)
+				return
+			}
 		}
 		response, err = json.MarshalIndent(answer, "", "\t")
 		if err != nil {
 			sendError(w, "error encoding json", err)
 			return
 		}
-
 	}
 	w.Write(response)
 }
@@ -85,12 +90,10 @@ func (rt *Router) IdHandler_Get(w http.ResponseWriter, r *http.Request) {
 func sendError(w http.ResponseWriter, errText string, err error) {
 	var resptaskErr respTask
 	resptaskErr.Error = errText
-	fmt.Printf("%s: %s\n", errText, err.Error())
 
-	resp, err := json.Marshal(resptaskErr)
-	if err != nil {
-		fmt.Printf("error encoding error json: %s\n", err.Error())
-		http.Error(w, fmt.Sprintf("%s: %s", errText, err.Error()), http.StatusInternalServerError)
+	resp, err2 := json.Marshal(resptaskErr)
+	if err2 != nil {
+		http.Error(w, fmt.Sprintf("%s: %s", errText, err2.Error()), http.StatusInternalServerError)
 		return
 	}
 

@@ -4,6 +4,8 @@ import (
 	"cloud_market/internal/cache"
 	"cloud_market/internal/model"
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -179,10 +181,10 @@ func (s *Storage) GetOrderById(ctx context.Context, orderUID string) (model.Orde
 		Delivery model.Delivery `db:"delivery"`
 		Payment  model.Payment  `db:"payment"`
 	}
-	var rows []orderRow
+	var row orderRow
 
 	// Основной запрос с JOIN для delivery и payment
-	err := s.DB.SelectContext(ctx, &rows, `
+	err := s.DB.GetContext(ctx, &row, `
 	SELECT 
 		o.*,
 		d.name as "delivery.name",
@@ -209,23 +211,21 @@ func (s *Storage) GetOrderById(ctx context.Context, orderUID string) (model.Orde
 		`, orderUID)
 
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.Order{}, errors.New("no exists in database")
+		}
 		return model.Order{}, fmt.Errorf("failed to get orders with joins: %w", err)
 	}
-	for _, row := range rows {
-		order := row.Order
-		order.Delivery = row.Delivery
-		order.Payment = row.Payment
+	order := row.Order
+	order.Delivery = row.Delivery
+	order.Payment = row.Payment
 
-		err = s.DB.SelectContext(ctx, &order.Items, `
-			SELECT chrt_id, track_number, price, rid, name, sale,
-				   size, total_price, nm_id, brand, status
-			FROM items WHERE order_id = $1`, order.ID)
-		if err != nil {
-			return model.Order{}, fmt.Errorf("failed to get items for order %s: %w", order.OrderUID, err)
-		}
-		return order, nil
+	err = s.DB.SelectContext(ctx, &order.Items, `
+		SELECT chrt_id, track_number, price, rid, name, sale,
+			size, total_price, nm_id, brand, status
+		FROM items WHERE order_id = $1`, order.ID)
+	if err != nil {
+		return model.Order{}, fmt.Errorf("failed to get items for order %s: %w", order.OrderUID, err)
 	}
-
-	return model.Order{}, nil
-
+	return order, nil
 }
