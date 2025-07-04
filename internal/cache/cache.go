@@ -13,7 +13,7 @@ type Cache struct {
 }
 
 // NewCache возвращает структуру с инициализированным кэшом
-func NewCashe() *Cache {
+func NewCache() *Cache {
 	return &Cache{
 		data: make(map[string]model.Order),
 		mu:   sync.RWMutex{},
