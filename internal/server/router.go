@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -25,7 +26,6 @@ type respTask struct {
 
 // 3. NewRouter  - функция-конструктор для создания экземпляра структуры Router
 func NewRouter(strg *storage.Storage, cache *cache.Cache) *Router {
-
 	return &Router{
 		strg:  strg,
 		cache: cache,
@@ -33,17 +33,20 @@ func NewRouter(strg *storage.Storage, cache *cache.Cache) *Router {
 }
 
 // 5. Routers - метод для создания экземпляра роутера chi.Mux, который соответствует интрефейсу http.Handler
-
 func (r *Router) Routers() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/order", r.GetIdHandler)
+	tmpl := template.Must(template.ParseFiles("web/index.html"))
+	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		tmpl.Execute(w, nil)
+	})
 
 	return router
 }
 
-//GetIdHandle  - функция для возврата данных заказа по номеру UID из кэш.
+// GetIdHandle  - функция для возврата данных заказа по номеру UID из кэш.
 // в случвае отсутствия данных в кэш, данные берутся из БД
-
 func (rt *Router) GetIdHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		sendError(w, "error method", errors.New("error method"))
@@ -51,10 +54,6 @@ func (rt *Router) GetIdHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	uid := r.FormValue("order_uid")
-
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
@@ -88,6 +87,7 @@ func (rt *Router) GetIdHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
 	w.Write(response)
 }
 
