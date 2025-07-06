@@ -1,0 +1,78 @@
+Миграции на рабочем компе:
+
+migrate create -ext sql -dir /c/KKO11/Golang/Gavrilin/cloud_market/db/dumps -seq tables
+
+migrate -path /c/KKO11/Golang/Gavrilin/cloud_market/db/dumps -database "postgres://localhost:5432/cloud_market?sslmode=disable&user=postgres&password=password" up
+
+migrate -path /c/KKO11/Golang/Gavrilin/cloud_market/db/dumps -database "postgres://localhost:5432/cloud_market?sslmode=disable&user=postgres&password=password" down
+
+_____________________________________________________________
+
+Миграции на домашнем Маке
+
+migrate create -ext sql -dir /Users/mac/Dev/WBTech/cloud_market/db/dumps -seq tables
+
+migrate -path /Users/mac/Dev/WBTech/cloud_market/db/dumps -database "postgres://localhost:7701/cloud_market?sslmode=disable&user=postgres&password=password" up
+
+migrate -path /Users/mac/Dev/WBTech/cloud_market/db/dumps -database "postgres://localhost:5433/cloud_market?sslmode=disable&user=postgres&password=password" down
+
+_______________________________________________________________
+Миграции на домашнем Маке:
+ ***РАБОЧИЙ ВАРИК с УЧЕТОМ ошибок переменной окружения  (PGLOCALEDIR=/Library/PostgreSQL/17/share/locale)***
+
+ env -u PGLOCALEDIR migrate -database "postgres://localhost:7701/cloud_market?sslmode=disable&user=postgres&password=password" -path /Users/mac/Dev/WBTech/cloud_market/db/dumps up
+
+ env -u PGLOCALEDIR migrate -database "postgres://localhost:7701/cloud_market?sslmode=disable&user=postgres&password=password" -path /Users/mac/Dev/WBTech/cloud_market/db/dumps down
+_______________________________________________________________
+*********KAFKA**********
+
+cd /Users/mac/dev/sdk/kafka_2.13-4.0.0/
+KAFKA_CLUSTER_ID="$(bin/kafka-storage.sh random-uuid)"
+bin/kafka-storage.sh format --standalone -t $KAFKA_CLUSTER_ID -c config/server.properties
+bin/kafka-server-start.sh config/server.properties
+
+_______________________________________________________________
+
+
+
+migrate -path /Users/mac/Dev/WBTech/cloud_market/db/dumps -database "postgres://postgres:password@localhost:7701/cloud_market?sslmode=disable" up
+
+PGLOCALEDIR="" migrate -database "postgres://localhost:7701/cloud_market?sslmode=disable&user=postgres&password=password" -path ./migrations up
+
+
+
+
+
+
+Для тестовой базы:
+
+migrate -path /c/KKO11/Golang/revelio/revelio_mainServer/internal/migrations -database "postgres://localhost:5432/revelioTest?sslmode=disable&user=postgres&password=password" up
+migrate -path /c/KKO11/Golang/revelio/revelio_mainServer/internal/migrations -database "postgres://localhost:5432/revelioTest?sslmode=disable&user=postgres&password=password" down
+
+
+psql -h localhost -p 5434 -U postgres -d revelio
+
+Компиляция и запуск:
+
+cd /c/KKO11/Golang/revelio/revelio_mainServer/cmd/revelio_mainServer && go build && start revelio_mainServer
+
+Запуск:
+
+cd /c/KKO11/Golang/revelio/revelio_mainServer/cmd/revelio_mainServer && start revelio_mainServer
+
+---------------------------------------------------------------------
+For V
+
+migrate -path db/dumps -database "postgres://localhost:5433/cloud_market?sslmode=disable&user=postgres&password=password" up
+
+migrate -path db/dumps -database "postgres://localhost:5433/cloud_market?sslmode=disable&user=postgres&password=password" down
+
+go build -o cm.exe ./cmd/cloud_market/main.go && go build -o pr.exe ./cmd/producer/main.go && start cm.exe && start pr.exe
+go build -o pr.exe ./cmd/producer/main.go && start pr.exe
+
+
+cd /mnt/c/golovanev/dev/sdk/kafka_2.13-4.0.0/
+KAFKA_CLUSTER_ID="$(bin/kafka-storage.sh random-uuid)"
+bin/kafka-storage.sh format --standalone -t $KAFKA_CLUSTER_ID -c config/server.properties
+bin/kafka-server-start.sh config/server.properties
+bin/kafka-server-stop.sh

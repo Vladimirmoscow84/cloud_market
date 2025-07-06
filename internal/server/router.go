@@ -45,14 +45,19 @@ func (r *Router) Routers() *chi.Mux {
 // в случвае отсутствия данных в кэш, данные берутся из БД
 
 func (rt *Router) IdHandler_Get(w http.ResponseWriter, r *http.Request) {
-
 	if r.Method != "GET" {
 		sendError(w, "error method", errors.New("error method"))
 		return
 	}
 
 	uid := r.FormValue("order_uid")
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	var response []byte
 	if rt.cache.IsExist(uid) {
 		answer, err := rt.cache.Get(uid)
@@ -60,7 +65,7 @@ func (rt *Router) IdHandler_Get(w http.ResponseWriter, r *http.Request) {
 			sendError(w, "error capturing order from cache", err)
 			return
 		}
-		response, err = json.MarshalIndent(answer, "", "\t")
+		response, err = json.Marshal(answer)
 		if err != nil {
 			sendError(w, "error encoding json", err)
 			return
@@ -77,7 +82,7 @@ func (rt *Router) IdHandler_Get(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		response, err = json.MarshalIndent(answer, "", "\t")
+		response, err = json.Marshal(answer)
 		if err != nil {
 			sendError(w, "error encoding json", err)
 			return
@@ -89,7 +94,7 @@ func (rt *Router) IdHandler_Get(w http.ResponseWriter, r *http.Request) {
 // sendError - сериализация и отправка ошибки в формате JSON
 func sendError(w http.ResponseWriter, errText string, err error) {
 	var resptaskErr respTask
-	resptaskErr.Error = errText
+	resptaskErr.Error = fmt.Sprintf("%s: %s", errText, err.Error())
 
 	resp, err2 := json.Marshal(resptaskErr)
 	if err2 != nil {
