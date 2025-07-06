@@ -36,15 +36,15 @@ func NewRouter(strg *storage.Storage, cache *cache.Cache) *Router {
 
 func (r *Router) Routers() *chi.Mux {
 	router := chi.NewRouter()
-	router.Get("/order", r.IdHandler_Get)
+	router.Get("/order", r.GetIdHandler)
 
 	return router
 }
 
-//IdHandler_Get  - функция для возврата данных заказа по номеру UID из кэш.
+//GetIdHandle  - функция для возврата данных заказа по номеру UID из кэш.
 // в случвае отсутствия данных в кэш, данные берутся из БД
 
-func (rt *Router) IdHandler_Get(w http.ResponseWriter, r *http.Request) {
+func (rt *Router) GetIdHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		sendError(w, "error method", errors.New("error method"))
 		return
@@ -65,7 +65,7 @@ func (rt *Router) IdHandler_Get(w http.ResponseWriter, r *http.Request) {
 			sendError(w, "error capturing order from cache", err)
 			return
 		}
-		response, err = json.Marshal(answer)
+		response, err = json.MarshalIndent(answer, "", "\t")
 		if err != nil {
 			sendError(w, "error encoding json", err)
 			return
@@ -82,7 +82,7 @@ func (rt *Router) IdHandler_Get(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		response, err = json.Marshal(answer)
+		response, err = json.MarshalIndent(answer, "", "\t")
 		if err != nil {
 			sendError(w, "error encoding json", err)
 			return
