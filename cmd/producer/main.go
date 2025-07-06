@@ -26,7 +26,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("error time parse: %v\n", err)
 	}
-	for i := range 5 {
+	for i := range 10 {
 		m := model.Order{
 			OrderUID:    fmt.Sprintf("b563feb7b2b84b6test_%d", i),
 			TrackNumber: "WBILMTESTTRACK",
@@ -103,7 +103,7 @@ func main() {
 			OofShard:          "1",
 		}
 
-		mJSON, err := json.Marshal(m)
+		mJSON, err := json.MarshalIndent(m, "", "\t")
 		if err != nil {
 			fmt.Printf("error marshal: %v\n", err)
 			return
@@ -121,7 +121,7 @@ func main() {
 		} else {
 			fmt.Printf("Message sent to partition %d at offset %d\n", partititon, offset)
 		}
-		time.Sleep(time.Second * 15)
+		time.Sleep(time.Second * 5)
 	}
 
 }

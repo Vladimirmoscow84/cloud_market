@@ -6,13 +6,22 @@ import (
 	"context"
 	"fmt"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 func main() {
 	ctx := context.Background()
+	viper.AutomaticEnv()
+	viper.SetConfigFile(".env")
+	err := viper.ReadInConfig()
+	if err != nil {
+		fmt.Printf("Ошибка загрузки .env файла: %v\n", err)
+		return
+	}
 
-	// databaseURI := "host=localhost port=7701 user=postgres password=password dbname=cloud_market sslmode=disable"
-	databaseURI := "host=localhost port=5432 user=postgres password=password dbname=cloud_market sslmode=disable"
+	databaseURI := viper.GetString("DATABASE_URI")
+
 	// 2. Создается экземпляр структуры storage.Storage для дальнейшей работы с БД (хранилищем)
 	strg, err := storage.New(databaseURI)
 	if err != nil {
@@ -25,7 +34,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("error time parse: %v\n", err)
 	}
-	for i := range 5 {
+	for i := 5; i < 10; i++ {
 		order := model.Order{
 			OrderUID:    fmt.Sprintf("b563feb7b2b84b6test_%d", i),
 			TrackNumber: "WBILMTESTTRACK",
