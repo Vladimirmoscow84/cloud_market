@@ -1,0 +1,108 @@
+package server
+
+import (
+	"cloud_market/internal/cache"
+	"cloud_market/internal/storage"
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"html/template"
+	"net/http"
+
+	"github.com/go-chi/chi"
+)
+
+type Router struct {
+	strg  *storage.Storage
+	cache *cache.Cache
+}
+
+type respTask struct {
+	Error string `json:"error,omitempty"`
+}
+
+// NewRouter  - функция-конструктор для создания экземпляра структуры Router
+func NewRouter(strg *storage.Storage, cache *cache.Cache) *Router {
+	return &Router{
+		strg:  strg,
+		cache: cache,
+	}
+}
+
+// Routers - метод для создания экземпляра роутера chi.Mux, который соответствует интрефейсу http.Handler
+func (r *Router) Routers() *chi.Mux {
+	router := chi.NewRouter()
+	router.Get("/order", r.GetIdHandler)
+	tmpl := template.Must(template.ParseFiles("web/index.html"))
+	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		tmpl.Execute(w, nil)
+	})
+
+	return router
+}
+
+/*
+	GetIdHandle  - функция для возврата данных заказа по номеру UID из кэш.
+
+в случвае отсутствия данных в кэш, данные берутся из БД
+*/
+func (rt *Router) GetIdHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		sendError(w, "error method", errors.New("error method"))
+		return
+	}
+
+	uid := r.FormValue("order_uid")
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	var response []byte
+	if rt.cache.IsExist(uid) {
+		answer, err := rt.cache.Get(uid)
+		if err != nil {
+			sendError(w, "error capturing order from cache", err)
+			return
+		}
+		response, err = json.MarshalIndent(answer, "", "\t")
+		if err != nil {
+			sendError(w, "error encoding json", err)
+			return
+		}
+	} else {
+		answer, err := rt.strg.GetOrderById(context.Background(), uid)
+		if err != nil {
+			switch err.Error() {
+			case "no exists in database":
+				sendError(w, "no exists in database", err)
+				return
+			default:
+				sendError(w, "error capturing order from database", err)
+				return
+			}
+		}
+		response, err = json.MarshalIndent(answer, "", "\t")
+		if err != nil {
+			sendError(w, "error encoding json", err)
+			return
+		}
+	}
+
+	w.Write(response)
+}
+
+// sendError - сериализация и отправка ошибки в формате JSON
+func sendError(w http.ResponseWriter, errText string, err error) {
+	var resptaskErr respTask
+	resptaskErr.Error = fmt.Sprintf("%s: %s", errText, err.Error())
+
+	resp, err2 := json.Marshal(resptaskErr)
+	if err2 != nil {
+		http.Error(w, fmt.Sprintf("%s: %s", errText, err2.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusBadRequest)
+	w.Write(resp)
+}
