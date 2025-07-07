@@ -27,7 +27,7 @@ func Run() {
 	kafkaTopic := viper.GetString("KAFKA_TOPIC")
 	kafkaGroup := viper.GetString("KAFKA_GROUP")
 
-	// 2. Создается экземпляр структуры storage.Storage для дальнейшей работы с БД (хранилищем)
+	//создается экземпляр структуры storage.Storage для дальнейшей работы с БД
 	strg, err := storage.New(databaseURI)
 	if err != nil {
 		fmt.Println("postgres DB initialization error:", err)
@@ -35,9 +35,9 @@ func Run() {
 	}
 	defer strg.DB.Close()
 
-	//...Создаем экземпляр кэш
 	c := cache.NewCache()
-	//...Заполняем кэш из БД
+
+	//заполнение кэш из БД
 	err = strg.FillingCache(ctx, c)
 	if err != nil {
 		fmt.Printf("ошибка заполнения кэш: %v", err)
@@ -59,10 +59,9 @@ func Run() {
 	}
 	go krs.Process(ctx)
 
-	// 4. Создается экземпляр структуры Router для
 	router := NewRouter(strg, c)
 
-	// 6. Запуск локального сервера
+	//запуск локального сервера
 	fmt.Printf("Server starting on %s\n", addr)
 	err = http.ListenAndServe(addr, router.Routers())
 	if err != nil {

@@ -13,18 +13,16 @@ import (
 	"github.com/go-chi/chi"
 )
 
-// Структура для работы
 type Router struct {
 	strg  *storage.Storage
 	cache *cache.Cache
 }
 
-// структура для вывода ответа в случае ошибки
 type respTask struct {
 	Error string `json:"error,omitempty"`
 }
 
-// 3. NewRouter  - функция-конструктор для создания экземпляра структуры Router
+// NewRouter  - функция-конструктор для создания экземпляра структуры Router
 func NewRouter(strg *storage.Storage, cache *cache.Cache) *Router {
 	return &Router{
 		strg:  strg,
@@ -32,7 +30,7 @@ func NewRouter(strg *storage.Storage, cache *cache.Cache) *Router {
 	}
 }
 
-// 5. Routers - метод для создания экземпляра роутера chi.Mux, который соответствует интрефейсу http.Handler
+// Routers - метод для создания экземпляра роутера chi.Mux, который соответствует интрефейсу http.Handler
 func (r *Router) Routers() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/order", r.GetIdHandler)
@@ -45,8 +43,11 @@ func (r *Router) Routers() *chi.Mux {
 	return router
 }
 
-// GetIdHandle  - функция для возврата данных заказа по номеру UID из кэш.
-// в случвае отсутствия данных в кэш, данные берутся из БД
+/*
+	GetIdHandle  - функция для возврата данных заказа по номеру UID из кэш.
+
+в случвае отсутствия данных в кэш, данные берутся из БД
+*/
 func (rt *Router) GetIdHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		sendError(w, "error method", errors.New("error method"))

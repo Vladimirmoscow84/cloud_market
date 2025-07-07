@@ -12,12 +12,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// структура для работы с БД (хранилищем)
+// структура для работы с БД
 type Storage struct {
 	DB *sqlx.DB
 }
 
-// 1.Создается функция-конструктор для создания экземпляра структруры Storage
+// функция-конструктор для создания экземпляра структруры Storage
 func New(databaseURI string) (*Storage, error) {
 	db, err := sqlx.Connect("pgx", databaseURI)
 	if err != nil {
@@ -30,13 +30,12 @@ func New(databaseURI string) (*Storage, error) {
 }
 
 func (s *Storage) AddOrder(ctx context.Context, order model.Order) error {
-	// начало транзакции
-	fmt.Println("Начало транзакции")
+	//начало транзакции
 	tx, err := s.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("ошибка начала транзакции: %w", err)
 	}
-	// откат транзакции в случае ошибки
+	//откат транзакции в случае ошибки
 	defer func() {
 		if err != nil {
 			fmt.Println("Произошёл Rollback")
@@ -44,8 +43,7 @@ func (s *Storage) AddOrder(ctx context.Context, order model.Order) error {
 		}
 	}()
 
-	fmt.Println("Начало order")
-	// запись данных в таблицу orders и получение из неё order_id для последующей записи order_id  в таблицы delivery, payment, items
+	//запись данных в таблицу orders и получение из неё order_id для последующей записи order_id  в таблицы delivery, payment, items
 	row := tx.QueryRowContext(ctx, `
 	INSERT INTO orders
 		(order_uid, track_number, entry, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_chard)
@@ -58,10 +56,8 @@ func (s *Storage) AddOrder(ctx context.Context, order model.Order) error {
 	if err := row.Scan(&orderID); err != nil {
 		return fmt.Errorf("ошибка добавления order: %w", err)
 	}
-	fmt.Println("Конец order")
 
-	fmt.Println("Начало delivery")
-	// запись данных в таблицу delivery
+	//запись данных в таблицу delivery
 	_, err = tx.ExecContext(ctx, `
 	INSERT INTO delivery
 		(name, phone, zip, city, address, region, email, order_id)
@@ -71,10 +67,8 @@ func (s *Storage) AddOrder(ctx context.Context, order model.Order) error {
 	if err != nil {
 		return fmt.Errorf("ошибка добавления delivery: %w", err)
 	}
-	fmt.Println("Конец delivery")
 
-	fmt.Println("Начало payment")
-	// запись данных в таблицу payment
+	//запись данных в таблицу payment
 	_, err = tx.ExecContext(ctx, `
 	INSERT INTO payment
 		(transaction, request_id, currency, provider, amount, payment_dt, bank, delivery_cost, goods_total, custom_fee, order_id)
@@ -84,10 +78,8 @@ func (s *Storage) AddOrder(ctx context.Context, order model.Order) error {
 	if err != nil {
 		return fmt.Errorf("ошибка добавления payment: %w", err)
 	}
-	fmt.Println("Конец delivery")
 
-	fmt.Println("Начало items")
-	// запись данных из слайса в таблицу items
+	//запись данных из слайса в таблицу items
 	if len(order.Items) > 0 {
 		for i := range order.Items {
 			order.Items[i].OrderID = orderID
@@ -102,9 +94,8 @@ func (s *Storage) AddOrder(ctx context.Context, order model.Order) error {
 			return fmt.Errorf("ошибка добавления item: %w", err)
 		}
 	}
-	fmt.Println("Конец items")
 
-	// выполнение commit транзакции
+	//выполнение commit транзакции
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("ошибка выполнения commit транзакции: %w", err)
 	}
@@ -113,7 +104,6 @@ func (s *Storage) AddOrder(ctx context.Context, order model.Order) error {
 }
 
 // FillingCache заполняет кэш из БД
-
 func (s *Storage) FillingCache(ctx context.Context, cache *cache.Cache) error {
 	//временная структура для результатов JOIN
 	type orderRow struct {
@@ -123,7 +113,7 @@ func (s *Storage) FillingCache(ctx context.Context, cache *cache.Cache) error {
 	}
 	var rows []orderRow
 
-	// Основной запрос с JOIN для delivery и payment
+	//основной запрос с JOIN для delivery и payment
 	err := s.DB.SelectContext(ctx, &rows, `
 	SELECT 
 		o.*,
@@ -175,7 +165,7 @@ func (s *Storage) FillingCache(ctx context.Context, cache *cache.Cache) error {
 
 // GetOrderById возвращает из БД данные в соответствии с запрошенным id
 func (s *Storage) GetOrderById(ctx context.Context, orderUID string) (model.Order, error) {
-	// времменная структура для заполнения ответа
+	//времменная структура для заполнения ответа
 	type orderRow struct {
 		model.Order
 		Delivery model.Delivery `db:"delivery"`
@@ -183,7 +173,7 @@ func (s *Storage) GetOrderById(ctx context.Context, orderUID string) (model.Orde
 	}
 	var row orderRow
 
-	// Основной запрос с JOIN для delivery и payment
+	//Основной запрос с JOIN для delivery и payment
 	err := s.DB.GetContext(ctx, &row, `
 	SELECT 
 		o.*,

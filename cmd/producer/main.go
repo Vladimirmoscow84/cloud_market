@@ -15,7 +15,6 @@ func main() {
 	config.Producer.Return.Successes = true
 
 	// Создание нового продюсера
-
 	producer, err := sarama.NewSyncProducer([]string{":9092"}, config)
 	if err != nil {
 		fmt.Printf("failed to start producer: %v\n", err)
