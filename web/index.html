@@ -1,51 +1,220 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
+<head>
     <meta charset="UTF-8">
-    <title>Отправка запроса на сервер</title>
-  </head>
-  <body>
-    <h1>Отправка запроса на сервер</h1>
+    <title>Получение данных заказа</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        #requestForm {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        input {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        #responseArea {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .error {
+            color: #d9534f;
+            font-weight: bold;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .field {
+            margin-bottom: 8px;
+            display: flex;
+        }
+        .field-name {
+            font-weight: bold;
+            min-width: 150px;
+            color: #34495e;
+        }
+        .field-value {
+            flex: 1;
+            word-break: break-all;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+        .item {
+            background: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <h1>Получение данных заказа</h1>
     <form id="requestForm">
-      <label for="uidInput">Введите UID заказа:</label><br />
-      <input type="text" id="uidInput" /><br /><br />
-      <button type="submit">Отправить запрос</button>
+        <input type="text" id="uidInput" placeholder="Введите UID заказа">
+        <button type="submit" id="submitBtn">Получить данные</button>
     </form>
 
-    <div id="responseArea"></div>
+    <div id="responseArea">Здесь появится информация о заказе...</div>
 
     <script>
-      document
-        .getElementById("requestForm")
-        .addEventListener("submit", async (event) => {
-          event.preventDefault()
+        document.getElementById("requestForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const responseArea = document.getElementById("responseArea");
+            const submitBtn = document.getElementById("submitBtn");
+            const uid = document.getElementById("uidInput").value.trim();
 
-          const uid = document.getElementById("uidInput").value.trim()
-
-          if (!uid) return alert("Необходимо заполнить UID!")
-
-          try {
-            const response = await fetch(
-              `http://localhost:7540/order?order_uid=${uid}`,
-              {
-                method: "OPTIONS",
-                headers: {
-                  "Content-Type": "text/plain",
-                },
-              }
-            )
-            if (!response.ok) {
-              throw new Error(
-                `Ошибка: ${response.status} - ${response.statusText}`
-              )
+            if (!uid) {
+                responseArea.innerHTML = '<span class="error">Пожалуйста, введите UID заказа</span>';
+                return;
             }
-            const result = await response.text()
-            alert(result)
-          } catch (error) {
-            console.error("Ошибка: ", error)
-            alert("Произошла ошибка при отправке данных")
-          }
-        })
+
+            try {
+                submitBtn.disabled = true;
+                responseArea.innerHTML = '<span class="loading">Загрузка данных...</span>';
+                
+                // Отправляем GET-запрос с UID как query-параметром
+                const response = await fetch(`http://localhost:7540/order?order_uid=${encodeURIComponent(uid)}`);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Ошибка сервера: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Если есть поле error - значит это ошибка
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Форматируем данные для отображения
+                responseArea.innerHTML = formatOrderData(data);
+            } catch (error) {
+                console.error("Ошибка:", error);
+                responseArea.innerHTML = `<span class="error">Ошибка: ${error.message}</span>`;
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        function formatOrderData(data) {
+            let html = `
+                <div class="section">
+                    <div class="section-title">Основная информация</div>
+                    <div class="field"><div class="field-name">Order UID:</div><div class="field-value">${data.order_uid || '-'}</div></div>
+                    <div class="field"><div class="field-name">Track Number:</div><div class="field-value">${data.track_number || '-'}</div></div>
+                    <div class="field"><div class="field-name">Entry:</div><div class="field-value">${data.entry || '-'}</div></div>
+                    <div class="field"><div class="field-name">Locale:</div><div class="field-value">${data.locale || '-'}</div></div>
+                    <div class="field"><div class="field-name">Customer ID:</div><div class="field-value">${data.customer_id || '-'}</div></div>
+                    <div class="field"><div class="field-name">Date Created:</div><div class="field-value">${data.date_created || '-'}</div></div>
+                </div>
+            `;
+
+            // Delivery section
+            if (data.delivery) {
+                html += `
+                    <div class="section">
+                        <div class="section-title">Доставка</div>
+                        <div class="field"><div class="field-name">Name:</div><div class="field-value">${data.delivery.name || '-'}</div></div>
+                        <div class="field"><div class="field-name">Phone:</div><div class="field-value">${data.delivery.phone || '-'}</div></div>
+                        <div class="field"><div class="field-name">Email:</div><div class="field-value">${data.delivery.email || '-'}</div></div>
+                        <div class="field"><div class="field-name">Address:</div><div class="field-value">${data.delivery.address || '-'}</div></div>
+                        <div class="field"><div class="field-name">City:</div><div class="field-value">${data.delivery.city || '-'}</div></div>
+                        <div class="field"><div class="field-name">Region:</div><div class="field-value">${data.delivery.region || '-'}</div></div>
+                        <div class="field"><div class="field-name">ZIP:</div><div class="field-value">${data.delivery.zip || '-'}</div></div>
+                    </div>
+                `;
+            }
+
+            // Payment section
+            if (data.payment) {
+                html += `
+                    <div class="section">
+                        <div class="section-title">Оплата</div>
+                        <div class="field"><div class="field-name">Transaction:</div><div class="field-value">${data.payment.transaction || '-'}</div></div>
+                        <div class="field"><div class="field-name">Currency:</div><div class="field-value">${data.payment.currency || '-'}</div></div>
+                        <div class="field"><div class="field-name">Provider:</div><div class="field-value">${data.payment.provider || '-'}</div></div>
+                        <div class="field"><div class="field-name">Amount:</div><div class="field-value">${data.payment.amount || '-'}</div></div>
+                        <div class="field"><div class="field-name">Payment Date:</div><div class="field-value">${data.payment.payment_dt ? new Date(data.payment.payment_dt * 1000).toLocaleString() : '-'}</div></div>
+                        <div class="field"><div class="field-name">Bank:</div><div class="field-value">${data.payment.bank || '-'}</div></div>
+                        <div class="field"><div class="field-name">Delivery Cost:</div><div class="field-value">${data.payment.delivery_cost || '-'}</div></div>
+                        <div class="field"><div class="field-name">Goods Total:</div><div class="field-value">${data.payment.goods_total || '-'}</div></div>
+                    </div>
+                `;
+            }
+
+            // Items section
+            if (data.items && data.items.length > 0) {
+                html += `<div class="section">
+                    <div class="section-title">Товары (${data.items.length})</div>`;
+                
+                data.items.forEach((item, index) => {
+                    html += `
+                        <div class="item">
+                            <div class="field"><div class="field-name">Товар ${index + 1}:</div><div class="field-value">${item.name || '-'}</div></div>
+                            <div class="field"><div class="field-name">Brand:</div><div class="field-value">${item.brand || '-'}</div></div>
+                            <div class="field"><div class="field-name">Price:</div><div class="field-value">${item.price || '-'}</div></div>
+                            <div class="field"><div class="field-name">Sale:</div><div class="field-value">${item.sale || '-'}%</div></div>
+                            <div class="field"><div class="field-name">Total Price:</div><div class="field-value">${item.total_price || '-'}</div></div>
+                            <div class="field"><div class="field-name">Status:</div><div class="field-value">${item.status || '-'}</div></div>
+                            <div class="field"><div class="field-name">Size:</div><div class="field-value">${item.size || '-'}</div></div>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            }
+
+            return html;
+        }
     </script>
-  </body>
+</body>
 </html>
